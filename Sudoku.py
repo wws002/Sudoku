@@ -27,6 +27,11 @@ for x in range(10, grid_width + 10, sudokuBlockSize):
         rect_list.append(rect)
 
 def drawSudokuGrid(selected_rect):
+    for x in range(10, grid_width + 10, sudokuBlockSize * 3):
+        for y in range(10, grid_height + 10, sudokuBlockSize * 3):
+            rect = pygame.Rect(x, y, sudokuBlockSize * 3, sudokuBlockSize * 3)
+            pygame.draw.rect(screen, black, rect, 3)
+
     if selected_rect:
         for rect in rect_list:
             if rect == selected_rect:
