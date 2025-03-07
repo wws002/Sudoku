@@ -8,8 +8,12 @@ sudokuBlockSize = int(grid_width / 9)
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
+grey = (128, 128, 128)
+green = (0, 255, 0)
 rect_list = []
+display_list = [False, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]
 nums_list = [4, 3, 5, 2, 6, 9, 7, 8, 1, 6, 8, 2, 5, 7, 1, 4, 9, 3, 1, 9, 7, 8, 3, 4, 5, 6, 2, 8, 2, 6, 1, 9, 5, 3, 4, 7, 3, 7, 4, 6, 8, 2, 9, 1, 5, 9, 5, 1, 7, 4, 3, 6, 2, 8, 5, 1, 9, 3, 2, 6, 8, 7, 4, 2, 4, 8, 9, 5, 7, 1, 3, 6, 7, 6, 3, 4, 1, 8, 2, 5, 9]
+solved_list = [4, 3, 5, 2, 6, 9, 7, 8, 1, 6, 8, 2, 5, 7, 1, 4, 9, 3, 1, 9, 7, 8, 3, 4, 5, 6, 2, 8, 2, 6, 1, 9, 5, 3, 4, 7, 3, 7, 4, 6, 8, 2, 9, 1, 5, 9, 5, 1, 7, 4, 3, 6, 2, 8, 5, 1, 9, 3, 2, 6, 8, 7, 4, 2, 4, 8, 9, 5, 7, 1, 3, 6, 7, 6, 3, 4, 1, 8, 2, 5, 9]
 selected_rect = None
 running = True
 
@@ -25,8 +29,13 @@ for x in range(10, grid_width + 10, sudokuBlockSize):
 def drawSudokuGrid(selected_rect):
     if selected_rect:
         for rect in rect_list:
-            if rect.x == selected_rect.x and rect.y == selected_rect.y:
-                pygame.draw.rect(screen, red, rect)
+            if rect == selected_rect:
+                if not display_list[rect_list.index(selected_rect)]:
+                    pygame.draw.rect(screen, grey, rect)
+                elif nums_list[rect_list.index(selected_rect)] == solved_list[rect_list.index(selected_rect)]:
+                    pygame.draw.rect(screen, green, rect)
+                else:
+                    pygame.draw.rect(screen, red, rect)
             else:
                 pygame.draw.rect(screen, black, rect, 1)
     else:
@@ -34,10 +43,15 @@ def drawSudokuGrid(selected_rect):
             pygame.draw.rect(screen, black, rect, 1)
 
     for index in range(len(rect_list)):
-        number_image = font.render(str(nums_list[index]), True, black, white)
-        margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
-        margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
-        screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
+        if display_list[index]:
+            number_image = font.render(str(nums_list[index]), True, black, white)
+            margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
+            margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
+            screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
+
+def drawWinScreen():
+    win_text_image = font.render("You Win!", True, black, white)
+    screen.blit(win_text_image, (0, 0))
 
 while running: 
     for event in pygame.event.get():
@@ -67,8 +81,12 @@ while running:
                     nums_list[rect_list.index(selected_rect)] = 8
                 if event.key == pygame.K_9:
                     nums_list[rect_list.index(selected_rect)] = 9
-            
-    
-    screen.fill('white')
+
+                display_list[rect_list.index(selected_rect)] = True
+
+    screen.fill(white)
     drawSudokuGrid(selected_rect)
+    if display_list.count(False) == 0 and nums_list == solved_list:
+        drawWinScreen()
+
     pygame.display.flip()
