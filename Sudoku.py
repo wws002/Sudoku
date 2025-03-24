@@ -1,4 +1,5 @@
 import pygame
+import requests
 
 width = 560
 grid_width = 540
@@ -12,21 +13,34 @@ red = (255, 0, 0)
 grey = (128, 128, 128)
 green = (0, 255, 0)
 
-rect_list = []
-original_display_list = [False, True, True, True, False, True, True, True, True, True, True, True, False, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, False]
-current_display_list = original_display_list.copy()
-nums_list = [4, 3, 5, 2, 6, 9, 7, 8, 1, 6, 8, 2, 5, 7, 1, 4, 9, 3, 1, 9, 7, 8, 3, 4, 5, 6, 2, 8, 2, 6, 1, 9, 5, 3, 4, 7, 3, 7, 4, 6, 8, 2, 9, 1, 5, 9, 5, 1, 7, 4, 3, 6, 2, 8, 5, 1, 9, 3, 2, 6, 8, 7, 4, 2, 4, 8, 9, 5, 7, 1, 3, 6, 7, 6, 3, 4, 1, 8, 2, 5, 9]
-solved_list = nums_list.copy()
-
 selected_rect = None
 running = True
 game_over = False
 strikes = 0
 
+def generatePuzzle():
+    url = "https://sudoku-api.vercel.app/api/dosuku"
+    response = requests.get(url)
+    values = response.json()['newboard']['grids'][0]['value']
+    solutions = response.json()['newboard']['grids'][0]['solution']
+
+    nums_list = []
+    solved_list = []
+
+    for inner_list in values:
+        nums_list.extend(inner_list)
+
+    for inner_list in solutions:
+        solved_list.extend(inner_list)
+
+    return nums_list, solved_list
+
 pygame.init()
 font = pygame.font.SysFont(None, 30)
 screen = pygame.display.set_mode((width, height))
-
+pygame.display.set_caption("Sudoku")
+nums_list, solved_list = generatePuzzle()
+rect_list = []
 for x in range(10, grid_width + 10, sudokuBlockSize):
     for y in range(40, grid_height + 40, sudokuBlockSize):
         rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
@@ -41,7 +55,7 @@ def drawSudokuGrid(selected_rect):
     if selected_rect:
         for rect in rect_list:
             if rect == selected_rect:
-                if not current_display_list[rect_list.index(selected_rect)]:
+                if not nums_list[rect_list.index(selected_rect)]:
                     pygame.draw.rect(screen, grey, rect)
                 elif nums_list[rect_list.index(selected_rect)] == solved_list[rect_list.index(selected_rect)]:
                     pygame.draw.rect(screen, green, rect)
@@ -54,7 +68,7 @@ def drawSudokuGrid(selected_rect):
             pygame.draw.rect(screen, black, rect, 1)
 
     for index in range(len(rect_list)):
-        if current_display_list[index]:
+        if nums_list[index]:
             number_image = font.render(str(nums_list[index]), True, black, white)
             margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
             margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
@@ -73,6 +87,9 @@ def drawLoseMessage():
     screen.blit(lose_text_image, (10, 10))
 
 def number_input(number, strikes):
+    if not number:
+        nums_list[rect_list.index(selected_rect)] = 0
+        return strikes
     if solved_list[rect_list.index(selected_rect)] != number and nums_list[rect_list.index(selected_rect)] != number:
         strikes += 1
     nums_list[rect_list.index(selected_rect)] = number
@@ -81,7 +98,7 @@ def number_input(number, strikes):
 while running: 
     while game_over:
         restart_message = font.render("Enter 'p' to play again", True, black, white)
-        screen.blit(restart_message, (200, 10))
+        screen.blit(restart_message, (190, 10))
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -89,8 +106,7 @@ while running:
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    nums_list = solved_list.copy()
-                    current_display_list = original_display_list.copy()
+                    nums_list, solved_list = generatePuzzle()
                     strikes = 0
                     selected_rect = None
                     game_over = False
@@ -105,6 +121,8 @@ while running:
                     selected_rect = rect
         if event.type == pygame.KEYDOWN:
             if selected_rect:
+                if event.key == pygame.K_0:
+                    strikes = number_input(0, strikes)
                 if event.key == pygame.K_1:
                     strikes = number_input(1, strikes)
                 if event.key == pygame.K_2:
@@ -124,8 +142,6 @@ while running:
                 if event.key == pygame.K_9:
                     strikes = number_input(9, strikes)
 
-                current_display_list[rect_list.index(selected_rect)] = True
-
     screen.fill(white)
     drawSudokuGrid(selected_rect)
     drawStrikes()
@@ -134,7 +150,7 @@ while running:
         drawLoseMessage()
         game_over = True
 
-    if current_display_list.count(False) == 0 and nums_list == solved_list:
+    if nums_list == solved_list:
         drawWinMessage()
         game_over = True
 
