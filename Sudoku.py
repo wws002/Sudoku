@@ -37,10 +37,12 @@ def generatePuzzle():
 
 pygame.init()
 font = pygame.font.SysFont(None, 30)
+marked_font = pygame.font.SysFont(None, 15)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Sudoku")
 nums_list, solved_list = generatePuzzle()
 rect_list = []
+marked_list = [[1, 2, 3, 4, 5, 6, 7, 8, 7]] * 81
 for x in range(10, grid_width + 10, sudokuBlockSize):
     for y in range(40, grid_height + 40, sudokuBlockSize):
         rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
@@ -59,6 +61,9 @@ def drawSudokuGrid(selected_rect):
                     pygame.draw.rect(screen, grey, rect)
                 elif nums_list[rect_list.index(selected_rect)] == solved_list[rect_list.index(selected_rect)]:
                     pygame.draw.rect(screen, green, rect)
+                    for index in range(len(nums_list)):
+                        if nums_list[index] == nums_list[rect_list.index(selected_rect)] and rect_list[index] != selected_rect:
+                            pygame.draw.rect(screen, grey, rect_list[index])
                 else:
                     pygame.draw.rect(screen, red, rect)
             else:
@@ -73,6 +78,12 @@ def drawSudokuGrid(selected_rect):
             margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
             margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
             screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
+        # else:
+        #     for marked_num in marked_list[index]:
+        #         marked_number_image = marked_font.render(str(marked_num), True, black, white)
+        #         margin_x = (sudokuBlockSize-1 - marked_number_image.get_width()) // 9 + marked_num * 9
+        #         margin_y = (sudokuBlockSize-1 - marked_number_image.get_height()) // 9 + marked_num * 9
+        #         screen.blit(marked_number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
 
 def drawStrikes():
     strike_text_image = font.render(f"{strikes}/3 Errors", True, black)
