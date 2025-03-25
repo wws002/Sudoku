@@ -158,6 +158,8 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if mark_button_rect.collidepoint(event.pos):
+                mark = not mark
             for rect in rect_list:
                 if rect.collidepoint(event.pos):
                     selected_rect = rect
