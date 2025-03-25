@@ -20,16 +20,19 @@ mark = False
 strikes = 0
 
 def generatePuzzle():
-    url = "https://sudoku-api.vercel.app/api/dosuku"
-    response = requests.get(url)
-    values = response.json()['newboard']['grids'][0]['value']
-    solutions = response.json()['newboard']['grids'][0]['solution']
-
+    api_url = 'https://api.api-ninjas.com/v1/sudokugenerate?difficulty=easy'
+    response = requests.get(api_url, headers={'X-Api-Key': 'd+raljYygqWEImdv++PFMg==R0f8jFUTLXMey3oM'})
+    values = response.json()['puzzle']
+    solutions = response.json()['solution']
     nums_list = []
     solved_list = []
 
     for inner_list in values:
         nums_list.extend(inner_list)
+
+    for index in range(len(nums_list)):
+        if not nums_list[index]:
+            nums_list[index] = 0
 
     for inner_list in solutions:
         solved_list.extend(inner_list)
