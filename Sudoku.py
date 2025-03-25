@@ -3,7 +3,7 @@ import requests
 
 width = 560
 grid_width = 540
-height = 620
+height = 650
 grid_height = 540
 sudokuBlockSize = int(grid_width / 9)
 
@@ -16,6 +16,7 @@ green = (0, 255, 0)
 selected_rect = None
 running = True
 game_over = False
+mark = False
 strikes = 0
 
 def generatePuzzle():
@@ -37,12 +38,13 @@ def generatePuzzle():
 
 pygame.init()
 font = pygame.font.SysFont(None, 30)
-marked_font = pygame.font.SysFont(None, 15)
+marked_font = pygame.font.SysFont(None, 18)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Sudoku")
 nums_list, solved_list = generatePuzzle()
 rect_list = []
-marked_list = [[1, 2, 3, 4, 5, 6, 7, 8, 7]] * 81
+mark_button_rect = pygame.Rect(width/2 - 45, height - 65, 90, 60)
+marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
 for x in range(10, grid_width + 10, sudokuBlockSize):
     for y in range(40, grid_height + 40, sudokuBlockSize):
         rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
@@ -78,12 +80,19 @@ def drawSudokuGrid(selected_rect):
             margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
             margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
             screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
-        # else:
-        #     for marked_num in marked_list[index]:
-        #         marked_number_image = marked_font.render(str(marked_num), True, black, white)
-        #         margin_x = (sudokuBlockSize-1 - marked_number_image.get_width()) // 9 + marked_num * 9
-        #         margin_y = (sudokuBlockSize-1 - marked_number_image.get_height()) // 9 + marked_num * 9
-        #         screen.blit(marked_number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
+        else:
+            for x in range(3):
+                if marked_list[index][x]:
+                    marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, white)
+                    screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
+            for x in range(3):
+                if marked_list[index][x+3]:
+                    marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, white)
+                    screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
+            for x in range(3):
+                if marked_list[index][x+6]:
+                    marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, white)
+                    screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
 
 def drawStrikes():
     strike_text_image = font.render(f"{strikes}/3 Errors", True, black)
@@ -97,7 +106,24 @@ def drawLoseMessage():
     lose_text_image = font.render("You lost", True, black, white)
     screen.blit(lose_text_image, (10, 10))
 
+def drawMarkButton():
+    mark_button_text_image = font.render("Mark", True, black, white)
+
+    if mark:
+        pygame.draw.rect(screen, red, mark_button_rect)
+        screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
+    else:
+        pygame.draw.rect(screen, black, mark_button_rect, 1)
+        screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
+
 def number_input(number, strikes):
+    if mark:
+        if marked_list[rect_list.index(selected_rect)][number - 1] == number:
+            marked_list[rect_list.index(selected_rect)][number - 1] = 0
+        else:
+            marked_list[rect_list.index(selected_rect)][number - 1] = number
+        return strikes
+    
     if not number:
         nums_list[rect_list.index(selected_rect)] = 0
         return strikes
@@ -118,6 +144,11 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     nums_list, solved_list = generatePuzzle()
+
+                    for index in range(len(marked_list)):
+                        for index2 in range(len(marked_list[index])):
+                            marked_list[index][index2] = 0
+
                     strikes = 0
                     selected_rect = None
                     game_over = False
@@ -131,6 +162,8 @@ while running:
                 if rect.collidepoint(event.pos):
                     selected_rect = rect
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_m:
+                mark = not mark
             if selected_rect:
                 if event.key == pygame.K_0:
                     strikes = number_input(0, strikes)
@@ -155,6 +188,7 @@ while running:
 
     screen.fill(white)
     drawSudokuGrid(selected_rect)
+    drawMarkButton()
     drawStrikes()
 
     if strikes > 2:
