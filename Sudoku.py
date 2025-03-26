@@ -17,10 +17,28 @@ selected_rect = None
 running = True
 game_over = False
 mark = False
+game_start = True
 strikes = 0
 
-def generatePuzzle():
-    api_url = 'https://api.api-ninjas.com/v1/sudokugenerate?difficulty=easy'
+pygame.init()
+font = pygame.font.SysFont(None, 30)
+marked_font = pygame.font.SysFont(None, 18)
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Sudoku")
+
+rect_list = []
+mark_button_rect = pygame.Rect(width/2 - 45, height - 65, 90, 60)
+easy_button_rect = pygame.Rect(10, 200, 90, 60)
+medium_button_rect = pygame.Rect(200, 200, 90, 60)
+hard_button_rect = pygame.Rect(400, 200, 90, 60)
+marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
+for x in range(10, grid_width + 10, sudokuBlockSize):
+    for y in range(40, grid_height + 40, sudokuBlockSize):
+        rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
+        rect_list.append(rect)
+
+def generatePuzzle(difficulty):
+    api_url = f'https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty}'
     response = requests.get(api_url, headers={'X-Api-Key': 'd+raljYygqWEImdv++PFMg==R0f8jFUTLXMey3oM'})
     values = response.json()['puzzle']
     solutions = response.json()['solution']
@@ -38,20 +56,6 @@ def generatePuzzle():
         solved_list.extend(inner_list)
 
     return nums_list, solved_list
-
-pygame.init()
-font = pygame.font.SysFont(None, 30)
-marked_font = pygame.font.SysFont(None, 18)
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Sudoku")
-nums_list, solved_list = generatePuzzle()
-rect_list = []
-mark_button_rect = pygame.Rect(width/2 - 45, height - 65, 90, 60)
-marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
-for x in range(10, grid_width + 10, sudokuBlockSize):
-    for y in range(40, grid_height + 40, sudokuBlockSize):
-        rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
-        rect_list.append(rect)
 
 def drawSudokuGrid(selected_rect):
     for x in range(10, grid_width + 10, sudokuBlockSize * 3):
@@ -111,13 +115,27 @@ def drawLoseMessage():
 
 def drawMarkButton():
     mark_button_text_image = font.render("Mark", True, black, white)
-
     if mark:
         pygame.draw.rect(screen, red, mark_button_rect)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
     else:
         pygame.draw.rect(screen, black, mark_button_rect, 1)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
+
+def drawEasyButton():
+    easy_button_text_image = font.render("Easy", True, black, white)
+    pygame.draw.rect(screen, black, easy_button_rect, 1)
+    screen.blit(easy_button_text_image, (easy_button_rect.x + 20, easy_button_rect.y + 20))
+
+def drawMediumButton():
+    medium_button_text_image = font.render("Medium", True, black, white)
+    pygame.draw.rect(screen, black, medium_button_rect, 1)
+    screen.blit(medium_button_text_image, (medium_button_rect.x + 8, medium_button_rect.y + 20))
+
+def drawHardButton():
+    hard_button_text_image = font.render("Hard", True, black, white)
+    pygame.draw.rect(screen, black, hard_button_rect, 1)
+    screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
 def number_input(number, strikes):
     if mark:
@@ -136,7 +154,35 @@ def number_input(number, strikes):
     return strikes
 
 while running: 
+    screen.fill(white)
+
+    while game_start:
+        difficulty_select_text_image = font.render("Choose difficulty", True, black, white)
+        screen.blit(difficulty_select_text_image, (150, 40))
+        drawEasyButton()
+        drawMediumButton()
+        drawHardButton()
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if easy_button_rect.collidepoint(event.pos):
+                    nums_list, solved_list = generatePuzzle("easy")
+                    game_start = False
+                if medium_button_rect.collidepoint(event.pos):
+                    nums_list, solved_list = generatePuzzle("medium")
+                    game_start = False
+                if hard_button_rect.collidepoint(event.pos):
+                    nums_list, solved_list = generatePuzzle("hard")
+                    game_start = False
+
     while game_over:
+        if strikes > 2:
+            drawLoseMessage()
+        else:
+            drawWinMessage()
         restart_message = font.render("Enter 'p' to play again", True, black, white)
         screen.blit(restart_message, (190, 10))
         pygame.display.flip()
@@ -146,7 +192,8 @@ while running:
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    nums_list, solved_list = generatePuzzle()
+                    game_start = True
+                    game_over = False
 
                     for index in range(len(marked_list)):
                         for index2 in range(len(marked_list[index])):
@@ -154,7 +201,6 @@ while running:
 
                     strikes = 0
                     selected_rect = None
-                    game_over = False
                     break
 
     for event in pygame.event.get():
@@ -191,17 +237,14 @@ while running:
                 if event.key == pygame.K_9:
                     strikes = number_input(9, strikes)
 
-    screen.fill(white)
     drawSudokuGrid(selected_rect)
     drawMarkButton()
     drawStrikes()
 
     if strikes > 2:
-        drawLoseMessage()
         game_over = True
 
-    if nums_list == solved_list:
-        drawWinMessage()
+    if nums_list == solved_list and not game_start:
         game_over = True
 
     pygame.display.flip()
