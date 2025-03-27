@@ -67,14 +67,14 @@ def drawSudokuGrid(selected_rect):
         for rect in rect_list:
             if rect == selected_rect:
                 if not nums_list[rect_list.index(selected_rect)]:
-                    pygame.draw.rect(screen, grey, rect)
+                    pygame.draw.rect(screen, grey, rect, 6)
                 elif nums_list[rect_list.index(selected_rect)] == solved_list[rect_list.index(selected_rect)]:
-                    pygame.draw.rect(screen, green, rect)
+                    pygame.draw.rect(screen, green, rect, 6)
                     for index in range(len(nums_list)):
                         if nums_list[index] == nums_list[rect_list.index(selected_rect)] and rect_list[index] != selected_rect:
-                            pygame.draw.rect(screen, grey, rect_list[index])
+                            pygame.draw.rect(screen, grey, rect_list[index], 6)
                 else:
-                    pygame.draw.rect(screen, red, rect)
+                    pygame.draw.rect(screen, red, rect, 6)
             else:
                 pygame.draw.rect(screen, black, rect, 1)
     else:
@@ -116,7 +116,7 @@ def drawLoseMessage():
 def drawMarkButton():
     mark_button_text_image = font.render("Mark", True, black, white)
     if mark:
-        pygame.draw.rect(screen, red, mark_button_rect)
+        pygame.draw.rect(screen, red, mark_button_rect, 6)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
     else:
         pygame.draw.rect(screen, black, mark_button_rect, 1)
