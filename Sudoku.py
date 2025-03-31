@@ -12,6 +12,7 @@ white = (255, 255, 255)
 red = (255, 0, 0)
 grey = (128, 128, 128)
 green = (0, 255, 0)
+blue = (0, 0, 255)
 
 selected_rect = None
 running = True
@@ -23,8 +24,20 @@ strikes = 0
 pygame.init()
 font = pygame.font.SysFont(None, 30)
 marked_font = pygame.font.SysFont(None, 18)
+bold_marked_font = pygame.font.SysFont(None, 22, True)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Sudoku")
+
+quadrants = [
+[0, 1, 2, 9, 10, 11, 18, 19, 20],
+[3, 4, 5, 12, 13, 14, 21, 22, 23],
+[6, 7, 8, 15, 16, 17, 24, 25, 26],
+[27, 28, 29, 36, 37, 38, 45, 46, 47],
+[30, 31, 32, 39, 40, 41, 48, 49, 50],
+[33, 34, 35, 42, 43, 44, 51, 52, 53],
+[54, 55, 56, 63, 64, 65, 72, 73, 74],
+[57, 58, 59, 66, 67, 68, 75, 76, 77],
+[60, 61, 62, 69, 70, 71, 78, 79, 80]]
 
 rect_list = []
 mark_button_rect = pygame.Rect(width/2 - 45, height - 65, 90, 60)
@@ -89,15 +102,24 @@ def drawSudokuGrid(selected_rect):
             screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
         else:
             for x in range(3):
-                if marked_list[index][x]:
+                if marked_list[index][x] and marked_list[index][x] == nums_list[rect_list.index(selected_rect)]:
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x]), True, blue, white)
+                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
+                elif marked_list[index][x]:
                     marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, white)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
             for x in range(3):
-                if marked_list[index][x+3]:
+                if marked_list[index][x+3] and marked_list[index][x+3] == nums_list[rect_list.index(selected_rect)]:
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+3]), True, blue, white)
+                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
+                elif marked_list[index][x+3]:
                     marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, white)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
             for x in range(3):
-                if marked_list[index][x+6]:
+                if marked_list[index][x+6] and marked_list[index][x+6] == nums_list[rect_list.index(selected_rect)]:
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+6]), True, blue, white)
+                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
+                elif marked_list[index][x+6]:
                     marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, white)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
 
@@ -137,6 +159,17 @@ def drawHardButton():
     pygame.draw.rect(screen, black, hard_button_rect, 1)
     screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
+def cleanMarksList(number):
+    current_quadrant = None
+    for quadrant in quadrants:
+        if rect_list.index(selected_rect) in quadrant:
+            current_quadrant = quadrant
+    
+    for index in current_quadrant:
+        for index2 in range(len(marked_list[index])):
+            if marked_list[index][index2] == number:
+                marked_list[index][index2] = 0
+
 def number_input(number, strikes):
     if mark:
         if marked_list[rect_list.index(selected_rect)][number - 1] == number:
@@ -148,9 +181,13 @@ def number_input(number, strikes):
     if not number:
         nums_list[rect_list.index(selected_rect)] = 0
         return strikes
-    if solved_list[rect_list.index(selected_rect)] != number and nums_list[rect_list.index(selected_rect)] != number:
+    elif solved_list[rect_list.index(selected_rect)] != number and nums_list[rect_list.index(selected_rect)] != number:
         strikes += 1
-    nums_list[rect_list.index(selected_rect)] = number
+        nums_list[rect_list.index(selected_rect)] = number
+    else:
+        nums_list[rect_list.index(selected_rect)] = number
+        cleanMarksList(number)
+
     return strikes
 
 while running: 
