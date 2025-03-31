@@ -41,6 +41,7 @@ quadrants = [
 [60, 61, 62, 69, 70, 71, 78, 79, 80]]
 
 rect_list = []
+new_game_button_rect = pygame.Rect(10, 5, 120, 30)
 mark_button_rect = pygame.Rect(width // 2 - 45, height - 65, 90, 60)
 easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
 medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
@@ -142,7 +143,7 @@ def drawMarkButton():
         pygame.draw.rect(screen, red, mark_button_rect, 6)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
     else:
-        pygame.draw.rect(screen, black, mark_button_rect, 1)
+        pygame.draw.rect(screen, black, mark_button_rect, 3)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
 
 def drawEasyButton():
@@ -160,6 +161,11 @@ def drawHardButton():
     pygame.draw.rect(screen, black, hard_button_rect, 1)
     screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
+def drawNewGameButton():
+    new_game_button_text_image = font.render("New Game", True, black, background)
+    pygame.draw.rect(screen, black, new_game_button_rect, 3)
+    screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
+
 def cleanMarksList(number):
     current_quadrant = None
     for quadrant in quadrants:
@@ -170,6 +176,15 @@ def cleanMarksList(number):
         for index2 in range(len(marked_list[index])):
             if marked_list[index][index2] == number:
                 marked_list[index][index2] = 0
+
+def resetGame():
+    game_start = True
+    game_over = False
+    strikes = 0
+    selected_rect = None
+    marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
+
+    return game_start, game_over, strikes, selected_rect, marked_list
 
 def number_input(number, strikes):
     if mark:
@@ -232,15 +247,7 @@ while running:
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    game_start = True
-                    game_over = False
-
-                    for index in range(len(marked_list)):
-                        for index2 in range(len(marked_list[index])):
-                            marked_list[index][index2] = 0
-
-                    strikes = 0
-                    selected_rect = None
+                    game_start, game_over, strikes, selected_rect, marked_list = resetGame()
                     break
 
     for event in pygame.event.get():
@@ -249,6 +256,8 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if mark_button_rect.collidepoint(event.pos):
                 mark = not mark
+            if new_game_button_rect.collidepoint(event.pos):
+                game_start, game_over, strikes, selected_rect, marked_list = resetGame()
             for rect in rect_list:
                 if rect.collidepoint(event.pos):
                     selected_rect = rect
@@ -280,6 +289,7 @@ while running:
     drawSudokuGrid(selected_rect)
     drawMarkButton()
     drawStrikes()
+    drawNewGameButton()
 
     if strikes > 2:
         game_over = True
