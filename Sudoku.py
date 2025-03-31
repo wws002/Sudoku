@@ -23,6 +23,7 @@ strikes = 0
 
 pygame.init()
 font = pygame.font.SysFont(None, 30)
+big_font = pygame.font.SysFont(None, 60)
 marked_font = pygame.font.SysFont(None, 18)
 bold_marked_font = pygame.font.SysFont(None, 22, True)
 screen = pygame.display.set_mode((width, height))
@@ -40,10 +41,10 @@ quadrants = [
 [60, 61, 62, 69, 70, 71, 78, 79, 80]]
 
 rect_list = []
-mark_button_rect = pygame.Rect(width/2 - 45, height - 65, 90, 60)
-easy_button_rect = pygame.Rect(10, 200, 90, 60)
-medium_button_rect = pygame.Rect(200, 200, 90, 60)
-hard_button_rect = pygame.Rect(400, 200, 90, 60)
+mark_button_rect = pygame.Rect(width // 2 - 45, height - 65, 90, 60)
+easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
+medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
+hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
 marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
 for x in range(10, grid_width + 10, sudokuBlockSize):
     for y in range(40, grid_height + 40, sudokuBlockSize):
@@ -128,12 +129,12 @@ def drawStrikes():
     screen.blit(strike_text_image, (460, 10))
 
 def drawWinMessage():
-    win_text_image = font.render("You Win!", True, black, white)
-    screen.blit(win_text_image, (10, 10))
+    win_text_image = big_font.render("You Win!", True, black, white)
+    screen.blit(win_text_image, (width // 2 - win_text_image.get_width() // 2, height //2))
 
 def drawLoseMessage():
-    lose_text_image = font.render("You lost", True, black, white)
-    screen.blit(lose_text_image, (10, 10))
+    lose_text_image = big_font.render("You lost", True, black, white)
+    screen.blit(lose_text_image, (width // 2 - lose_text_image.get_width() // 2, height // 2))
 
 def drawMarkButton():
     mark_button_text_image = font.render("Mark", True, black, white)
@@ -194,8 +195,10 @@ while running:
     screen.fill(white)
 
     while game_start:
+        welcome_text_image = big_font.render("Let's play Sudoku!", True, black, white)
         difficulty_select_text_image = font.render("Choose difficulty", True, black, white)
-        screen.blit(difficulty_select_text_image, (150, 40))
+        screen.blit(welcome_text_image, (width // 2 - welcome_text_image.get_width() // 2, height // 6))
+        screen.blit(difficulty_select_text_image, (width // 2 - difficulty_select_text_image.get_width() // 2, height // 3))
         drawEasyButton()
         drawMediumButton()
         drawHardButton()
@@ -220,8 +223,8 @@ while running:
             drawLoseMessage()
         else:
             drawWinMessage()
-        restart_message = font.render("Enter 'p' to play again", True, black, white)
-        screen.blit(restart_message, (190, 10))
+        restart_message_image = font.render("Enter 'p' to play again", True, black, white)
+        screen.blit(restart_message_image, (width // 2 - restart_message_image.get_width() // 2, 10))
         pygame.display.flip()
 
         for event in pygame.event.get():
