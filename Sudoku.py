@@ -8,11 +8,11 @@ grid_height = 540
 sudokuBlockSize = int(grid_width / 9)
 
 black = (0, 0, 0)
-white = (255, 255, 255)
 red = (255, 0, 0)
 grey = (128, 128, 128)
 green = (0, 255, 0)
 blue = (0, 0, 255)
+background = (208, 244, 245)
 
 selected_rect = None
 running = True
@@ -97,31 +97,31 @@ def drawSudokuGrid(selected_rect):
 
     for index in range(len(rect_list)):
         if nums_list[index]:
-            number_image = font.render(str(nums_list[index]), True, black, white)
+            number_image = font.render(str(nums_list[index]), True, black, background)
             margin_x = (sudokuBlockSize-1 - number_image.get_width()) // 2
             margin_y = (sudokuBlockSize-1 - number_image.get_height()) // 2
             screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
         else:
             for x in range(3):
                 if marked_list[index][x] and marked_list[index][x] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x]), True, blue, white)
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x]), True, blue, background)
                     screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
                 elif marked_list[index][x]:
-                    marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, white)
+                    marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
             for x in range(3):
                 if marked_list[index][x+3] and marked_list[index][x+3] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+3]), True, blue, white)
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+3]), True, blue, background)
                     screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
                 elif marked_list[index][x+3]:
-                    marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, white)
+                    marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
             for x in range(3):
                 if marked_list[index][x+6] and marked_list[index][x+6] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+6]), True, blue, white)
+                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+6]), True, blue, background)
                     screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
                 elif marked_list[index][x+6]:
-                    marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, white)
+                    marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
 
 def drawStrikes():
@@ -129,15 +129,15 @@ def drawStrikes():
     screen.blit(strike_text_image, (460, 10))
 
 def drawWinMessage():
-    win_text_image = big_font.render("You Win!", True, black, white)
+    win_text_image = big_font.render("You Win!", True, black, background)
     screen.blit(win_text_image, (width // 2 - win_text_image.get_width() // 2, height //2))
 
 def drawLoseMessage():
-    lose_text_image = big_font.render("You lost", True, black, white)
+    lose_text_image = big_font.render("You lost", True, black, background)
     screen.blit(lose_text_image, (width // 2 - lose_text_image.get_width() // 2, height // 2))
 
 def drawMarkButton():
-    mark_button_text_image = font.render("Mark", True, black, white)
+    mark_button_text_image = font.render("Mark", True, black, background)
     if mark:
         pygame.draw.rect(screen, red, mark_button_rect, 6)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
@@ -146,17 +146,17 @@ def drawMarkButton():
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
 
 def drawEasyButton():
-    easy_button_text_image = font.render("Easy", True, black, white)
+    easy_button_text_image = font.render("Easy", True, black, background)
     pygame.draw.rect(screen, black, easy_button_rect, 1)
     screen.blit(easy_button_text_image, (easy_button_rect.x + 20, easy_button_rect.y + 20))
 
 def drawMediumButton():
-    medium_button_text_image = font.render("Medium", True, black, white)
+    medium_button_text_image = font.render("Medium", True, black, background)
     pygame.draw.rect(screen, black, medium_button_rect, 1)
     screen.blit(medium_button_text_image, (medium_button_rect.x + 8, medium_button_rect.y + 20))
 
 def drawHardButton():
-    hard_button_text_image = font.render("Hard", True, black, white)
+    hard_button_text_image = font.render("Hard", True, black, background)
     pygame.draw.rect(screen, black, hard_button_rect, 1)
     screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
@@ -192,11 +192,11 @@ def number_input(number, strikes):
     return strikes
 
 while running: 
-    screen.fill(white)
+    screen.fill(background)
 
     while game_start:
-        welcome_text_image = big_font.render("Let's play Sudoku!", True, black, white)
-        difficulty_select_text_image = font.render("Choose difficulty", True, black, white)
+        welcome_text_image = big_font.render("Let's play Sudoku!", True, black, background)
+        difficulty_select_text_image = font.render("Choose difficulty", True, black, background)
         screen.blit(welcome_text_image, (width // 2 - welcome_text_image.get_width() // 2, height // 6))
         screen.blit(difficulty_select_text_image, (width // 2 - difficulty_select_text_image.get_width() // 2, height // 3))
         drawEasyButton()
@@ -223,7 +223,7 @@ while running:
             drawLoseMessage()
         else:
             drawWinMessage()
-        restart_message_image = font.render("Enter 'p' to play again", True, black, white)
+        restart_message_image = font.render("Enter 'p' to play again", True, black, background)
         screen.blit(restart_message_image, (width // 2 - restart_message_image.get_width() // 2, 10))
         pygame.display.flip()
 
