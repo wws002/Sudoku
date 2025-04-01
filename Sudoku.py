@@ -10,7 +10,7 @@ sudokuBlockSize = int(grid_width / 9)
 black = (0, 0, 0)
 red = (246, 159, 157)
 grey = (128, 128, 128)
-green = (0, 255, 0)
+green = (130, 201, 36)
 blue = (0, 0, 255)
 background = (208, 244, 245)
 
