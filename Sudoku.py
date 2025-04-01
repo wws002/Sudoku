@@ -310,6 +310,26 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_m:
                 mark = not mark
+            if event.key == pygame.K_UP:
+                if not selected_rect:
+                    selected_rect = rect_list[0]
+                elif rect_list.index(selected_rect) not in rows[0]:
+                    selected_rect = rect_list[rect_list.index(selected_rect) - 1]
+            if event.key == pygame.K_DOWN:
+                if not selected_rect:
+                    selected_rect = rect_list[0]
+                elif rect_list.index(selected_rect) not in rows[8]:
+                    selected_rect = rect_list[rect_list.index(selected_rect) + 1]
+            if event.key == pygame.K_RIGHT:
+                if not selected_rect:
+                    selected_rect = rect_list[0]
+                elif rect_list.index(selected_rect) not in columns[8]:
+                    selected_rect = rect_list[rect_list.index(selected_rect) + 9]
+            if event.key == pygame.K_LEFT:
+                if not selected_rect:
+                    selected_rect = rect_list[0]
+                elif rect_list.index(selected_rect) not in columns[0]:
+                    selected_rect = rect_list[rect_list.index(selected_rect) - 9]
             if selected_rect:
                 if event.key == pygame.K_0:
                     strikes = number_input(0, strikes)
