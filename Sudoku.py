@@ -104,7 +104,8 @@ def drawSudokuGrid(selected_rect):
             pygame.draw.rect(screen, black, rect, 3)
 
     if selected_rect:
-        current_quadrant, current_row, current_column = getQuadrantRowColumn()
+        current_row = getCurrentRow()
+        current_column = getCurrentColumn()
 
         for rect in rect_list:
             if rect == selected_rect:
@@ -207,27 +208,25 @@ def drawNewGameButton():
     pygame.draw.rect(screen, black, new_game_button_rect, 3)
     screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
 
-def getQuadrantRowColumn():
-    current_quadrant = None
-    current_row = None
-    current_column = None
-
-    for quadrant in quadrants:
-        if rect_list.index(selected_rect) in quadrant:
-            current_quadrant = quadrant
-    
+def getCurrentRow():
     for row in rows:
         if rect_list.index(selected_rect) in row:
-            current_row = row
+            return row
 
+def getCurrentColumn():
     for column in columns:
         if rect_list.index(selected_rect) in column:
-            current_column = column
-
-    return current_quadrant, current_row, current_column
+            return column
+        
+def getCurrentQuadrant():
+    for quadrant in quadrants:
+        if rect_list.index(selected_rect) in quadrant:
+            return quadrant
 
 def cleanMarksList(number):
-    current_quadrant, current_row, current_column = getQuadrantRowColumn()
+    current_quadrant = getCurrentQuadrant()
+    current_row = getCurrentRow()
+    current_column = getCurrentColumn()
 
     for index in current_quadrant:
         for index2 in range(len(marked_list[index])):
