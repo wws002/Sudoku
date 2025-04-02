@@ -18,10 +18,12 @@ selected_rect = None
 running = True
 game_over = False
 mark = False
+highlight = False
 game_start = True
 strikes = 0
 
 pygame.init()
+small_font = pygame.font.SysFont(None, 25)
 font = pygame.font.SysFont(None, 30)
 big_font = pygame.font.SysFont(None, 60)
 marked_font = pygame.font.SysFont(None, 18)
@@ -67,7 +69,8 @@ quadrants = [
 
 rect_list = []
 new_game_button_rect = pygame.Rect(10, 5, 120, 30)
-mark_button_rect = pygame.Rect(width // 2 - 45, height - 65, 90, 60)
+mark_button_rect = pygame.Rect(10, height - 65, 90, 60)
+highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 325, 60)
 easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
 medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
 hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
@@ -118,7 +121,7 @@ def drawSudokuGrid(selected_rect):
                             pygame.draw.rect(screen, black, rect_list[index], 6)
                 else:
                     pygame.draw.rect(screen, red, rect, 6)
-            elif rect_list.index(rect) in current_column or rect_list.index(rect) in current_row:
+            elif (rect_list.index(rect) in current_column or rect_list.index(rect) in current_row) and highlight:
                 pygame.draw.rect(screen, blue, rect, 6)
             else:
                 pygame.draw.rect(screen, black, rect, 1)
@@ -187,6 +190,15 @@ def drawMarkButton():
     else:
         pygame.draw.rect(screen, black, mark_button_rect, 3)
         screen.blit(mark_button_text_image, (mark_button_rect.x + 20, mark_button_rect.y + 20))
+
+def drawHighlightCurrentRowColumnButton():
+    highlight_current_row_column_text_image = small_font.render("Highlight Current Row and Column", True, black, background)
+    if highlight:
+        pygame.draw.rect(screen, red, highlight_current_row_column_button_rect, 6)
+        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 20, highlight_current_row_column_button_rect.y + 20))
+    else:
+        pygame.draw.rect(screen, black, highlight_current_row_column_button_rect, 3)
+        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 20, highlight_current_row_column_button_rect.y + 20))
 
 def drawEasyButton():
     easy_button_text_image = font.render("Easy", True, black, background)
@@ -322,6 +334,8 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if mark_button_rect.collidepoint(event.pos):
                 mark = not mark
+            if highlight_current_row_column_button_rect.collidepoint(event.pos):
+                highlight = not highlight
             if new_game_button_rect.collidepoint(event.pos):
                 game_start, game_over, strikes, selected_rect, marked_list = resetGame()
             for rect in rect_list:
@@ -335,6 +349,8 @@ while running:
                 selected_rect = None
             if event.key == pygame.K_m:
                 mark = not mark
+            if event.key == pygame.K_h:
+                highlight = not highlight
             if event.key == pygame.K_UP:
                 if not selected_rect:
                     selected_rect = rect_list[0]
@@ -379,6 +395,7 @@ while running:
 
     drawSudokuGrid(selected_rect)
     drawMarkButton()
+    drawHighlightCurrentRowColumnButton()
     drawStrikes()
     drawNewGameButton()
 
