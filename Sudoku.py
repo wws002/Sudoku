@@ -31,6 +31,19 @@ bold_marked_font = pygame.font.SysFont(None, 22, True)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Sudoku")
 
+new_game_button_rect = pygame.Rect(10, 5, 120, 30)
+mark_button_rect = pygame.Rect(10, height - 65, 90, 60)
+highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 325, 60)
+easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
+medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
+hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
+marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
+rect_list = []
+for x in range(10, grid_width + 10, sudokuBlockSize):
+    for y in range(40, grid_height + 40, sudokuBlockSize):
+        rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
+        rect_list.append(rect)
+
 rows = [
     [0,  9, 18, 27, 36, 45, 54, 63, 72],
     [1, 10, 19, 28, 37, 46, 55, 64, 73],
@@ -66,19 +79,6 @@ quadrants = [
     [57, 58, 59, 66, 67, 68, 75, 76, 77],
     [60, 61, 62, 69, 70, 71, 78, 79, 80]
 ]
-
-rect_list = []
-new_game_button_rect = pygame.Rect(10, 5, 120, 30)
-mark_button_rect = pygame.Rect(10, height - 65, 90, 60)
-highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 325, 60)
-easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
-medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
-hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
-marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
-for x in range(10, grid_width + 10, sudokuBlockSize):
-    for y in range(40, grid_height + 40, sudokuBlockSize):
-        rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
-        rect_list.append(rect)
 
 def generatePuzzle(difficulty):
     api_url = f'https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty}'
