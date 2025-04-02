@@ -1,12 +1,14 @@
 import pygame
 import requests
 
+# initialize grid dimensions
 width = 560
 grid_width = 540
 height = 650
 grid_height = 540
 sudokuBlockSize = int(grid_width / 9)
 
+# define color scheme
 black = (0, 0, 0)
 red = (246, 159, 157)
 grey = (128, 128, 128)
@@ -14,14 +16,15 @@ green = (130, 201, 36)
 blue = (21, 92, 153)
 background = (208, 244, 245)
 
+# define variables
 selected_rect = None
-running = True
 game_over = False
 mark = False
 highlight = False
 game_start = True
 strikes = 0
 
+# initialize pygame
 pygame.init()
 small_font = pygame.font.SysFont(None, 25)
 font = pygame.font.SysFont(None, 30)
@@ -31,19 +34,20 @@ bold_marked_font = pygame.font.SysFont(None, 22, True)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Sudoku")
 
+# initialize rects
 new_game_button_rect = pygame.Rect(10, 5, 120, 30)
 mark_button_rect = pygame.Rect(10, height - 65, 90, 60)
 highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 325, 60)
 easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
 medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
 hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
-marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
 rect_list = []
 for x in range(10, grid_width + 10, sudokuBlockSize):
     for y in range(40, grid_height + 40, sudokuBlockSize):
         rect = pygame.Rect(x, y, sudokuBlockSize, sudokuBlockSize)
         rect_list.append(rect)
 
+# define indices for rows, columns, and quadrants
 rows = [
     [0,  9, 18, 27, 36, 45, 54, 63, 72],
     [1, 10, 19, 28, 37, 46, 55, 64, 73],
@@ -87,6 +91,7 @@ def generatePuzzle(difficulty):
     solutions = response.json()['solution']
     nums_list = []
     solved_list = []
+    marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
 
     for inner_list in values:
         nums_list.extend(inner_list)
@@ -98,7 +103,7 @@ def generatePuzzle(difficulty):
     for inner_list in solutions:
         solved_list.extend(inner_list)
 
-    return nums_list, solved_list
+    return nums_list, solved_list, marked_list
 
 def drawSudokuGrid(selected_rect):
     for x in range(10, grid_width + 10, sudokuBlockSize * 3):
@@ -284,9 +289,11 @@ def number_input(number, strikes):
 
     return strikes
 
-while running: 
+# main loop
+while True: 
     screen.fill(background)
 
+    # loop for start of game
     while game_start:
         welcome_text_image = big_font.render("Let's play Sudoku!", True, black, background)
         difficulty_select_text_image = font.render("Choose difficulty", True, black, background)
@@ -302,15 +309,16 @@ while running:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if easy_button_rect.collidepoint(event.pos):
-                    nums_list, solved_list = generatePuzzle("easy")
+                    nums_list, solved_list, marked_list = generatePuzzle("easy")
                     game_start = False
                 if medium_button_rect.collidepoint(event.pos):
-                    nums_list, solved_list = generatePuzzle("medium")
+                    nums_list, solved_list, marked_list = generatePuzzle("medium")
                     game_start = False
                 if hard_button_rect.collidepoint(event.pos):
-                    nums_list, solved_list = generatePuzzle("hard")
+                    nums_list, solved_list, marked_list = generatePuzzle("hard")
                     game_start = False
 
+    # loop for end of game
     while game_over:
         if strikes > 2:
             drawLoseMessage()
@@ -328,6 +336,7 @@ while running:
                     game_start, game_over, strikes, selected_rect, marked_list = resetGame()
                     break
 
+    # main event detection loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -393,6 +402,7 @@ while running:
                 if event.key == pygame.K_9:
                     strikes = number_input(9, strikes)
 
+    # draw grid, strikes, and buttons
     drawSudokuGrid(selected_rect)
     drawMarkButton()
     drawHighlightCurrentRowColumnButton()
