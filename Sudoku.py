@@ -11,7 +11,7 @@ black = (0, 0, 0)
 red = (246, 159, 157)
 grey = (128, 128, 128)
 green = (130, 201, 36)
-blue = (0, 0, 255)
+blue = (21, 92, 153)
 background = (208, 244, 245)
 
 selected_rect = None
@@ -104,6 +104,8 @@ def drawSudokuGrid(selected_rect):
             pygame.draw.rect(screen, black, rect, 3)
 
     if selected_rect:
+        current_quadrant, current_row, current_column = getQuadrantRowColumn()
+
         for rect in rect_list:
             if rect == selected_rect:
                 if not nums_list[rect_list.index(selected_rect)]:
@@ -112,9 +114,11 @@ def drawSudokuGrid(selected_rect):
                     pygame.draw.rect(screen, green, rect, 6)
                     for index in range(len(nums_list)):
                         if nums_list[index] == nums_list[rect_list.index(selected_rect)] and rect_list[index] != selected_rect:
-                            pygame.draw.rect(screen, grey, rect_list[index], 6)
+                            pygame.draw.rect(screen, black, rect_list[index], 6)
                 else:
                     pygame.draw.rect(screen, red, rect, 6)
+            elif rect_list.index(rect) in current_column or rect_list.index(rect) in current_row:
+                pygame.draw.rect(screen, blue, rect, 6)
             else:
                 pygame.draw.rect(screen, black, rect, 1)
     else:
@@ -129,23 +133,35 @@ def drawSudokuGrid(selected_rect):
             screen.blit(number_image, (rect_list[index].x + 2 + margin_x, rect_list[index].y + 2 + margin_y))
         else:
             for x in range(3):
-                if marked_list[index][x] and marked_list[index][x] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x]), True, blue, background)
-                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
+                if selected_rect:
+                    if marked_list[index][x] and marked_list[index][x] == nums_list[rect_list.index(selected_rect)]:
+                        bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x]), True, blue, background)
+                        screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
+                    elif marked_list[index][x]:
+                        marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, background)
+                        screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
                 elif marked_list[index][x]:
                     marked_number_image = marked_font.render(str(marked_list[index][x]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 5))
             for x in range(3):
-                if marked_list[index][x+3] and marked_list[index][x+3] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+3]), True, blue, background)
-                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
+                if selected_rect:
+                    if marked_list[index][x+3] and marked_list[index][x+3] == nums_list[rect_list.index(selected_rect)]:
+                        bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+3]), True, blue, background)
+                        screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
+                    elif marked_list[index][x+3]:
+                        marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, background)
+                        screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
                 elif marked_list[index][x+3]:
                     marked_number_image = marked_font.render(str(marked_list[index][x+3]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 25))
             for x in range(3):
-                if marked_list[index][x+6] and marked_list[index][x+6] == nums_list[rect_list.index(selected_rect)]:
-                    bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+6]), True, blue, background)
-                    screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
+                if selected_rect:
+                    if marked_list[index][x+6] and marked_list[index][x+6] == nums_list[rect_list.index(selected_rect)]:
+                        bold_marked_number_image = bold_marked_font.render(str(marked_list[index][x+6]), True, blue, background)
+                        screen.blit(bold_marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
+                    elif marked_list[index][x+6]:
+                        marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, background)
+                        screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
                 elif marked_list[index][x+6]:
                     marked_number_image = marked_font.render(str(marked_list[index][x+6]), True, black, background)
                     screen.blit(marked_number_image, (rect_list[index].x + 5 + x * 20, rect_list[index].y + 45))
@@ -191,7 +207,7 @@ def drawNewGameButton():
     pygame.draw.rect(screen, black, new_game_button_rect, 3)
     screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
 
-def cleanMarksList(number):
+def getQuadrantRowColumn():
     current_quadrant = None
     current_row = None
     current_column = None
@@ -203,11 +219,16 @@ def cleanMarksList(number):
     for row in rows:
         if rect_list.index(selected_rect) in row:
             current_row = row
-    
+
     for column in columns:
         if rect_list.index(selected_rect) in column:
             current_column = column
-    
+
+    return current_quadrant, current_row, current_column
+
+def cleanMarksList(number):
+    current_quadrant, current_row, current_column = getQuadrantRowColumn()
+
     for index in current_quadrant:
         for index2 in range(len(marked_list[index])):
             if marked_list[index][index2] == number:
@@ -306,8 +327,13 @@ while running:
                 game_start, game_over, strikes, selected_rect, marked_list = resetGame()
             for rect in rect_list:
                 if rect.collidepoint(event.pos):
-                    selected_rect = rect
+                    if rect != selected_rect:
+                        selected_rect = rect
+                    else:
+                        selected_rect = None
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                selected_rect = None
             if event.key == pygame.K_m:
                 mark = not mark
             if event.key == pygame.K_UP:
