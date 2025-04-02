@@ -84,6 +84,7 @@ quadrants = [
     [60, 61, 62, 69, 70, 71, 78, 79, 80]
 ]
 
+# functions
 def generatePuzzle(difficulty):
     api_url = f'https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty}'
     response = requests.get(api_url, headers={'X-Api-Key': 'd+raljYygqWEImdv++PFMg==R0f8jFUTLXMey3oM'})
@@ -409,10 +410,12 @@ while True:
     drawStrikes()
     drawNewGameButton()
 
+    # check for win-lose conditions
     if strikes > 2:
         game_over = True
 
     if nums_list == solved_list and not game_start:
         game_over = True
 
+    # update display
     pygame.display.flip()
