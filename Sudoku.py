@@ -21,6 +21,8 @@ selected_rect = None
 game_over = False
 mark = False
 highlight = False
+clear = False
+new_game = False
 game_start = True
 strikes = 0
 
@@ -37,7 +39,8 @@ pygame.display.set_caption("Sudoku")
 # initialize rects
 new_game_button_rect = pygame.Rect(10, 5, 120, 30)
 mark_button_rect = pygame.Rect(10, height - 65, 90, 60)
-highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 325, 60)
+highlight_current_row_column_button_rect = pygame.Rect(110, height - 65, 340, 60)
+clear_cell_button_rect = pygame.Rect(460, height - 65, 90, 60)
 easy_button_rect = pygame.Rect(width // 5, height // 2, 90, 60)
 medium_button_rect = pygame.Rect(width // 2 - 45, height // 2, 90, 60)
 hard_button_rect = pygame.Rect(width - width // 5 - 90, height // 2, 90, 60)
@@ -201,10 +204,24 @@ def drawHighlightCurrentRowColumnButton():
     highlight_current_row_column_text_image = small_font.render("Highlight Current Row and Column", True, black, background)
     if highlight:
         pygame.draw.rect(screen, red, highlight_current_row_column_button_rect, 6)
-        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 20, highlight_current_row_column_button_rect.y + 20))
+        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 30, highlight_current_row_column_button_rect.y + 20))
     else:
         pygame.draw.rect(screen, black, highlight_current_row_column_button_rect, 3)
-        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 20, highlight_current_row_column_button_rect.y + 20))
+        screen.blit(highlight_current_row_column_text_image, (highlight_current_row_column_button_rect.x + 30, highlight_current_row_column_button_rect.y + 20))
+
+def drawClearCellButton(clear):
+    clear_cell_button_text_image = font.render("Clear", True, black, background)
+
+    if clear:
+        pygame.draw.rect(screen, red, clear_cell_button_rect, 6)
+        screen.blit(clear_cell_button_text_image, (clear_cell_button_rect.x + 20, clear_cell_button_rect.y + 20))
+        pygame.display.flip()
+        pygame.time.wait(300)
+    else:
+        pygame.draw.rect(screen, black, clear_cell_button_rect, 3)
+        screen.blit(clear_cell_button_text_image, (clear_cell_button_rect.x + 20, clear_cell_button_rect.y + 20))
+
+    return False
 
 def drawEasyButton():
     easy_button_text_image = font.render("Easy", True, black, background)
@@ -221,10 +238,20 @@ def drawHardButton():
     pygame.draw.rect(screen, black, hard_button_rect, 1)
     screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
-def drawNewGameButton():
+def drawNewGameButton(new_game):
     new_game_button_text_image = font.render("New Game", True, black, background)
-    pygame.draw.rect(screen, black, new_game_button_rect, 3)
-    screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
+
+    if new_game:
+        pygame.draw.rect(screen, red, new_game_button_rect, 6)
+        screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
+        drawClearCellButton(False)
+        pygame.display.flip()
+        pygame.time.wait(300)
+    else: 
+        pygame.draw.rect(screen, black, new_game_button_rect, 3)
+        screen.blit(new_game_button_text_image, (new_game_button_rect.x + 10, new_game_button_rect.y + 5))
+    
+    return False
 
 def getCurrentRow():
     for row in rows:
@@ -347,7 +374,13 @@ while True:
             if highlight_current_row_column_button_rect.collidepoint(event.pos):
                 highlight = not highlight
             if new_game_button_rect.collidepoint(event.pos):
+                new_game = True
                 game_start, game_over, strikes, selected_rect, marked_list = resetGame()
+            if clear_cell_button_rect.collidepoint(event.pos):
+                clear = True
+                if selected_rect:
+                    for index in range(len(marked_list[rect_list.index(selected_rect)])):
+                        marked_list[rect_list.index(selected_rect)][index] = 0
             for rect in rect_list:
                 if rect.collidepoint(event.pos):
                     if rect != selected_rect:
@@ -361,6 +394,11 @@ while True:
                 mark = not mark
             if event.key == pygame.K_h:
                 highlight = not highlight
+            if event.key == pygame.K_c:
+                clear = True
+                if selected_rect:
+                    for index in range(len(marked_list[rect_list.index(selected_rect)])):
+                        marked_list[rect_list.index(selected_rect)][index] = 0
             if event.key == pygame.K_UP:
                 if not selected_rect:
                     selected_rect = rect_list[0]
@@ -408,7 +446,8 @@ while True:
     drawMarkButton()
     drawHighlightCurrentRowColumnButton()
     drawStrikes()
-    drawNewGameButton()
+    new_game = drawNewGameButton(new_game)
+    clear = drawClearCellButton(clear)
 
     # check for win-lose conditions
     if strikes > 2:
