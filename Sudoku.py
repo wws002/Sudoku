@@ -91,23 +91,27 @@ quadrants = [
 def generatePuzzle(difficulty):
     api_url = f'https://api.api-ninjas.com/v1/sudokugenerate?difficulty={difficulty}'
     response = requests.get(api_url, headers={'X-Api-Key': 'd+raljYygqWEImdv++PFMg==R0f8jFUTLXMey3oM'})
-    values = response.json()['puzzle']
-    solutions = response.json()['solution']
-    nums_list = []
-    solved_list = []
-    marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
+    if response.status_code == 200:
+        values = response.json()['puzzle']
+        solutions = response.json()['solution']
+        nums_list = []
+        solved_list = []
+        marked_list = [[0, 0, 0, 0, 0, 0, 0, 0, 0] for _ in range(81)]
 
-    for inner_list in values:
-        nums_list.extend(inner_list)
+        for inner_list in values:
+            nums_list.extend(inner_list)
 
-    for index in range(len(nums_list)):
-        if not nums_list[index]:
-            nums_list[index] = 0
+        for index in range(len(nums_list)):
+            if not nums_list[index]:
+                nums_list[index] = 0
 
-    for inner_list in solutions:
-        solved_list.extend(inner_list)
+        for inner_list in solutions:
+            solved_list.extend(inner_list)
 
-    return nums_list, solved_list, marked_list
+        return nums_list, solved_list, marked_list
+    else:
+        print("API request failed :(")
+        quit()
 
 def drawSudokuGrid(selected_rect):
     for x in range(10, grid_width + 10, sudokuBlockSize * 3):
