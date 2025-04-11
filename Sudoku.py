@@ -227,20 +227,38 @@ def drawClearCellButton(clear):
 
     return False
 
-def drawEasyButton():
+def drawEasyButton(selected):
     easy_button_text_image = font.render("Easy", True, black, background)
-    pygame.draw.rect(screen, black, easy_button_rect, 1)
-    screen.blit(easy_button_text_image, (easy_button_rect.x + 20, easy_button_rect.y + 20))
+    if selected:
+        pygame.draw.rect(screen, red, easy_button_rect, 6)
+        screen.blit(easy_button_text_image, (easy_button_rect.x + 20, easy_button_rect.y + 20))
+        pygame.display.flip()
+        pygame.time.wait(300)
+    else:   
+        pygame.draw.rect(screen, black, easy_button_rect, 3)
+        screen.blit(easy_button_text_image, (easy_button_rect.x + 20, easy_button_rect.y + 20))
 
-def drawMediumButton():
+def drawMediumButton(selected):
     medium_button_text_image = font.render("Medium", True, black, background)
-    pygame.draw.rect(screen, black, medium_button_rect, 1)
-    screen.blit(medium_button_text_image, (medium_button_rect.x + 8, medium_button_rect.y + 20))
+    if selected:
+        pygame.draw.rect(screen, red, medium_button_rect, 6)
+        screen.blit(medium_button_text_image, (medium_button_rect.x + 8, medium_button_rect.y + 20))
+        pygame.display.flip()
+        pygame.time.wait(300)
+    else:
+        pygame.draw.rect(screen, black, medium_button_rect, 3)
+        screen.blit(medium_button_text_image, (medium_button_rect.x + 8, medium_button_rect.y + 20))
 
-def drawHardButton():
+def drawHardButton(selected):
     hard_button_text_image = font.render("Hard", True, black, background)
-    pygame.draw.rect(screen, black, hard_button_rect, 1)
-    screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
+    if selected:
+        pygame.draw.rect(screen, red, hard_button_rect, 6)
+        screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
+        pygame.display.flip()
+        pygame.time.wait(300)
+    else:
+        pygame.draw.rect(screen, black, hard_button_rect, 3)
+        screen.blit(hard_button_text_image, (hard_button_rect.x + 20, hard_button_rect.y + 20))
 
 def drawNewGameButton(new_game):
     new_game_button_text_image = font.render("New Game", True, black, background)
@@ -331,9 +349,9 @@ while True:
         difficulty_select_text_image = font.render("Choose difficulty", True, black, background)
         screen.blit(welcome_text_image, (width // 2 - welcome_text_image.get_width() // 2, height // 6))
         screen.blit(difficulty_select_text_image, (width // 2 - difficulty_select_text_image.get_width() // 2, height // 3))
-        drawEasyButton()
-        drawMediumButton()
-        drawHardButton()
+        drawEasyButton(False)
+        drawMediumButton(False)
+        drawHardButton(False)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -341,12 +359,15 @@ while True:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if easy_button_rect.collidepoint(event.pos):
+                    drawEasyButton(True)
                     nums_list, solved_list, marked_list = generatePuzzle("easy")
                     game_start = False
                 if medium_button_rect.collidepoint(event.pos):
+                    drawMediumButton(True)
                     nums_list, solved_list, marked_list = generatePuzzle("medium")
                     game_start = False
                 if hard_button_rect.collidepoint(event.pos):
+                    drawHardButton(True)
                     nums_list, solved_list, marked_list = generatePuzzle("hard")
                     game_start = False
 
